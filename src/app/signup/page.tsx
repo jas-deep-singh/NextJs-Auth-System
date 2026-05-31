@@ -5,19 +5,35 @@ import { useRouter } from "next/navigation";
 import axios from "axios";
 
 export default function SignUp() {
+  const router = useRouter();
   const [user, setUser] = React.useState({
     username: "",
     email: "",
     password: "",
   });
+  const [loading, setLoading] = React.useState(false);
 
-  const onSignUp = async () => {};
+  const onSignUp = async () => {
+    try {
+      setLoading(false);
+      const response = await axios.post('/api/users/signup', user);
+      console.log('SignUp successfull : ', response.data);
+      router.push('/login');
+    } catch(error: unknown) {
+      const message = error instanceof Error ? error.message : 'Internal Server Error';
+      console.log('SignUp Failed : ', {error: message});
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const buttonDisabled = !user.email || !user.password || !user.username;
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-100 px-4">
       <div className="w-full max-w-md bg-white rounded-2xl shadow-lg p-8">
         <h1 className="text-3xl font-bold text-center mb-6 text-gray-400">
-          Sign Up
+          {loading ? "Processing" : "SignUp"}
         </h1>
 
         <div className="flex flex-col gap-2">
@@ -69,6 +85,7 @@ export default function SignUp() {
           <button
             className="w-full bg-blue-600 text-white py-3 rounded-lg font-medium mt-4 hover:bg-blue-700 transition duration-200"
             onClick={onSignUp}
+            disabled={buttonDisabled}
           >
             Sign Up
           </button>

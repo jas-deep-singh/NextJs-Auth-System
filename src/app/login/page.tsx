@@ -10,13 +10,30 @@ export default function Login() {
     password: "",
   });
 
-  const onLogin = async () => {};
+  const router = useRouter();
+  const [loading, setLoading] = React.useState(false);
+
+  const onLogin = async () => {
+    try {
+      setLoading(true);
+      const response = await axios.post('/api/users/login', user);
+      console.log('Login successful', response.data);
+      router.push('/profile');
+    } catch(error: unknown) {
+      const message = error instanceof Error ? error.message : 'Internal server error';
+      console.log('Error: ', message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const buttonDisabled = !user.email || !user.password;
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-100 px-4">
       <div className="w-full max-w-md bg-white rounded-2xl shadow-lg p-8">
         <h1 className="text-3xl font-bold text-center mb-6 text-gray-400">
-          Login
+          {loading ? 'Logging In' : 'Login'}
         </h1>
 
         <div className="flex flex-col gap-2">
@@ -54,12 +71,13 @@ export default function Login() {
           <button
             className="w-full bg-blue-600 text-white py-3 rounded-lg font-medium mt-4 hover:bg-blue-700 transition duration-200"
             onClick={onLogin}
+            disabled={buttonDisabled}
           >
             Sign Up
           </button>
 
           <p className="text-center text-gray-600 mt-4">
-            Don't have an Account?{" "}
+            Don&apos;t have an Account?{" "}
             <Link
               href="/signup"
               className="text-blue-600 hover:text-blue-800 font-medium"
